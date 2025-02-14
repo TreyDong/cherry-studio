@@ -63,6 +63,18 @@ const NotionSettings: FC = () => {
   return (
     <SettingGroup theme={theme}>
       <SettingTitle>{t('settings.data.notion.title')}</SettingTitle>
+      <SettingRow>
+        <SettingRowTitle>{t('settings.data.notion.database_id')}</SettingRowTitle>
+        <HStack alignItems="center" gap="5px">
+          <Input
+            type="text"
+            value={notionDatabaseID || ''}
+            onChange={handleNotionDatabaseIdChange}
+            onBlur={handleNotionDatabaseIdChange}
+            style={{ width: 315 }}
+          />
+        </HStack>
+      </SettingRow>
       <SettingDivider />
       <SettingRow>
         <SettingRowTitle>{t('settings.data.notion.database_id')}</SettingRowTitle>
