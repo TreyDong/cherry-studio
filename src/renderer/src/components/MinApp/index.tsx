@@ -1,6 +1,7 @@
 /* eslint-disable react/no-unknown-property */
 import { CloseOutlined, ExportOutlined, PushpinOutlined, ReloadOutlined } from '@ant-design/icons'
 import { isMac, isWindows } from '@renderer/config/constant'
+import { AppLogo } from '@renderer/config/env'
 import { DEFAULT_MIN_APPS } from '@renderer/config/minapps'
 import { useBridge } from '@renderer/hooks/useBridge'
 import { useMinapps } from '@renderer/hooks/useMinapps'
@@ -49,7 +50,10 @@ const PopupContainer: React.FC<Props> = ({ app, resolve }) => {
   }
 
   const onOpenLink = () => {
-    window.api.openWebsite(app.url)
+    if (webviewRef.current) {
+      const currentUrl = webviewRef.current.getURL()
+      window.api.openWebsite(currentUrl)
+    }
   }
 
   const onTogglePin = () => {
@@ -234,6 +238,10 @@ export default class MinApp {
       // @ts-ignore delay params
       await MinApp.onClose(0)
       await delay(0)
+    }
+
+    if (!app.logo) {
+      app.logo = AppLogo
     }
 
     MinApp.app = app

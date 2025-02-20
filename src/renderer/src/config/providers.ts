@@ -212,13 +212,13 @@ export const PROVIDER_CONFIG = {
   },
   dmxapi: {
     api: {
-      url: 'https://api.dmxapi.com'
+      url: 'https://www.dmxapi.cn'
     },
     websites: {
-      official: 'https://dmxapi.com/',
-      apiKey: 'https://www.dmxapi.com/token',
-      docs: 'https://dmxapi.com/models.html#code-block',
-      models: 'https://www.dmxapi.com/pricing'
+      official: 'https://www.dmxapi.cn/register?aff=bwwY',
+      apiKey: 'https://www.dmxapi.cn/register?aff=bwwY',
+      docs: 'https://dmxapi.cn/models.html#code-block',
+      models: 'https://www.dmxapi.cn/pricing'
     }
   },
   perplexity: {
@@ -526,7 +526,7 @@ export const PROVIDER_CONFIG = {
     },
     websites: {
       official: 'https://cloud.baidu.com/',
-      apiKey: 'https://cloud.baidu.com/console/qianfan/apikey',
+      apiKey: 'https://console.bce.baidu.com/iam/#/iam/apikey/list',
       docs: 'https://cloud.baidu.com/doc/index.html',
       models: 'https://cloud.baidu.com/doc/WENXINWORKSHOP/s/Fm2vrveyu'
     }

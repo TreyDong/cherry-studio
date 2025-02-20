@@ -5,7 +5,7 @@ export type Assistant = {
   id: string
   name: string
   prompt: string
-  knowledge_base?: KnowledgeBase
+  knowledge_bases?: KnowledgeBase[]
   topics: Topic[]
   type: string
   emoji?: string
@@ -89,6 +89,7 @@ export type Topic = {
   updatedAt: string
   messages: Message[]
   pinned?: boolean
+  prompt?: string
 }
 
 export type User = {
@@ -243,6 +244,7 @@ export interface KnowledgeBase {
   documentCount?: number
   chunkSize?: number
   chunkOverlap?: number
+  threshold?: number
 }
 
 export type KnowledgeBaseParams = {
@@ -267,6 +269,15 @@ export type GenerateImageParams = {
   guidanceScale: number
   signal?: AbortSignal
   promptEnhancement?: boolean
+}
+
+export interface TranslateHistory {
+  id: string
+  sourceText: string
+  targetText: string
+  sourceLanguage: string
+  targetLanguage: string
+  createdAt: string
 }
 
 export type SidebarIcon = 'assistants' | 'agents' | 'paintings' | 'translate' | 'minapp' | 'knowledge' | 'files'

@@ -52,7 +52,6 @@ interface Props {
 
 let _text = ''
 let _files: FileType[] = []
-let _base: KnowledgeBase | undefined
 
 const Inputbar: FC<Props> = ({ assistant: _assistant, setActiveTopic }) => {
   const [text, setText] = useState(_text)
@@ -83,7 +82,7 @@ const Inputbar: FC<Props> = ({ assistant: _assistant, setActiveTopic }) => {
   const [spaceClickCount, setSpaceClickCount] = useState(0)
   const spaceClickTimer = useRef<NodeJS.Timeout>()
   const [isTranslating, setIsTranslating] = useState(false)
-  const [selectedKnowledgeBase, setSelectedKnowledgeBase] = useState<KnowledgeBase | undefined>(_base)
+  const [selectedKnowledgeBases, setSelectedKnowledgeBases] = useState<KnowledgeBase[]>([])
   const [mentionModels, setMentionModels] = useState<Model[]>([])
   const [isMentionPopupOpen, setIsMentionPopupOpen] = useState(false)
 
@@ -104,7 +103,6 @@ const Inputbar: FC<Props> = ({ assistant: _assistant, setActiveTopic }) => {
 
   _text = text
   _files = files
-  _base = selectedKnowledgeBase
 
   const sendMessage = useCallback(async () => {
     await modelGenerating()
@@ -124,8 +122,8 @@ const Inputbar: FC<Props> = ({ assistant: _assistant, setActiveTopic }) => {
       status: 'success'
     }
 
-    if (selectedKnowledgeBase) {
-      message.knowledgeBaseIds = [selectedKnowledgeBase.id]
+    if (selectedKnowledgeBases) {
+      message.knowledgeBaseIds = selectedKnowledgeBases.map((base) => base.id)
     }
 
     if (files.length > 0) {
@@ -144,7 +142,7 @@ const Inputbar: FC<Props> = ({ assistant: _assistant, setActiveTopic }) => {
     setTimeout(() => resizeTextArea(), 0)
 
     setExpend(false)
-  }, [inputEmpty, text, assistant.id, assistant.topics, selectedKnowledgeBase, files, mentionModels])
+  }, [inputEmpty, text, assistant.id, assistant.topics, selectedKnowledgeBases, files, mentionModels])
 
   const translate = async () => {
     if (isTranslating) {
@@ -241,6 +239,11 @@ const Inputbar: FC<Props> = ({ assistant: _assistant, setActiveTopic }) => {
         return event.preventDefault()
       }
       sendMessage()
+      return event.preventDefault()
+    }
+
+    if (event.key === 'Backspace' && text.trim() === '' && mentionModels.length > 0) {
+      setMentionModels((prev) => prev.slice(0, -1))
       return event.preventDefault()
     }
   }
@@ -458,14 +461,15 @@ const Inputbar: FC<Props> = ({ assistant: _assistant, setActiveTopic }) => {
   }, [])
 
   useEffect(() => {
-    setSelectedKnowledgeBase(showKnowledgeIcon ? assistant.knowledge_base : undefined)
-  }, [assistant.id, assistant.knowledge_base, showKnowledgeIcon])
+    // if assistant knowledge bases are undefined return []
+    setSelectedKnowledgeBases(showKnowledgeIcon ? (assistant.knowledge_bases ?? []) : [])
+  }, [assistant.id, assistant.knowledge_bases, showKnowledgeIcon])
 
   const textareaRows = window.innerHeight >= 1000 || isBubbleStyle ? 2 : 1
 
-  const handleKnowledgeBaseSelect = (base?: KnowledgeBase) => {
-    updateAssistant({ ...assistant, knowledge_base: base })
-    setSelectedKnowledgeBase(base)
+  const handleKnowledgeBaseSelect = (bases?: KnowledgeBase[]) => {
+    updateAssistant({ ...assistant, knowledge_bases: bases })
+    setSelectedKnowledgeBases(bases ?? [])
   }
 
   const onMentionModel = (model: Model) => {
@@ -511,7 +515,14 @@ const Inputbar: FC<Props> = ({ assistant: _assistant, setActiveTopic }) => {
             ref={textareaRef}
             style={{ fontSize }}
             styles={{ textarea: TextareaStyle }}
-            onFocus={() => setInputFocus(true)}
+            onFocus={(e: React.FocusEvent<HTMLTextAreaElement>) => {
+              setInputFocus(true)
+              const textArea = e.target
+              if (textArea) {
+                const length = textArea.value.length
+                textArea.setSelectionRange(length, length)
+              }
+            }}
             onBlur={() => setInputFocus(false)}
             onInput={onInput}
             disabled={searching}
@@ -566,7 +577,7 @@ const Inputbar: FC<Props> = ({ assistant: _assistant, setActiveTopic }) => {
               </Tooltip>
               {showKnowledgeIcon && (
                 <KnowledgeBaseButton
-                  selectedBase={selectedKnowledgeBase}
+                  selectedBases={selectedKnowledgeBases}
                   onSelect={handleKnowledgeBaseSelect}
                   ToolbarButton={ToolbarButton}
                   disabled={files.length > 0}

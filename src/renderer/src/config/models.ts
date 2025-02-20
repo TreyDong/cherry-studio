@@ -150,7 +150,8 @@ const visionAllowedModels = [
   'gpt-4o(?:-[\\w-]+)?',
   'chatgpt-4o(?:-[\\w-]+)?',
   'o1(?:-[\\w-]+)?',
-  'deepseek-vl(?:[\\w-]+)?'
+  'deepseek-vl(?:[\\w-]+)?',
+  'kimi-latest'
 ]
 
 const visionExcludedModels = ['gpt-4-\\d+-preview', 'gpt-4-turbo-preview', 'gpt-4-32k', 'gpt-4-\\d+']
@@ -161,7 +162,7 @@ export const VISION_REGEX = new RegExp(
 )
 
 export const TEXT_TO_IMAGE_REGEX = /flux|diffusion|stabilityai|sd-|dall|cogview|janus/i
-export const REASONING_REGEX = /^(o\d+(?:-[\w-]+)?|.*\breasoner\b.*|.*-[rR]\d+.*)$/i
+export const REASONING_REGEX = /^(o\d+(?:-[\w-]+)?|.*\b(?:reasoner|thinking)\b.*|.*-[rR]\d+.*)$/i
 
 export const EMBEDDING_REGEX =
   /(?:^text-|embed|rerank|davinci|babbage|bge-|e5-|LLM2Vec|retrieval|uae-|gte-|jina-clip|jina-embeddings)/i
@@ -178,6 +179,7 @@ export function getModelLogo(modelId: string) {
     pixtral: isLight ? PixtralModelLogo : PixtralModelLogoDark,
     jina: isLight ? JinaModelLogo : JinaModelLogoDark,
     abab: isLight ? MinimaxModelLogo : MinimaxModelLogoDark,
+    minimax: isLight ? MinimaxModelLogo : MinimaxModelLogoDark,
     o3: isLight ? ChatGPTo1ModelLogo : ChatGPTo1ModelLogoDark,
     o1: isLight ? ChatGPTo1ModelLogo : ChatGPTo1ModelLogoDark,
     'gpt-3': isLight ? ChatGPT35ModelLogo : ChatGPT35ModelLogoDark,
@@ -194,13 +196,16 @@ export function getModelLogo(modelId: string) {
     glm: isLight ? ChatGLMModelLogo : ChatGLMModelLogoDark,
     deepseek: isLight ? DeepSeekModelLogo : DeepSeekModelLogoDark,
     qwen: isLight ? QwenModelLogo : QwenModelLogoDark,
-    qwq: isLight ? QwenModelLogo : QwenModelLogoDark,
+    'qwq-': isLight ? QwenModelLogo : QwenModelLogoDark,
+    'qvq-': isLight ? QwenModelLogo : QwenModelLogoDark,
+    Omni: isLight ? QwenModelLogo : QwenModelLogoDark,
     gemma: isLight ? GemmaModelLogo : GemmaModelLogoDark,
     'yi-': isLight ? YiModelLogo : YiModelLogoDark,
     llama: isLight ? LlamaModelLogo : LlamaModelLogoDark,
     mixtral: isLight ? MistralModelLogo : MistralModelLogo,
     mistral: isLight ? MistralModelLogo : MistralModelLogoDark,
     moonshot: isLight ? MoonshotModelLogo : MoonshotModelLogoDark,
+    kimi: isLight ? MoonshotModelLogo : MoonshotModelLogoDark,
     phi: isLight ? MicrosoftModelLogo : MicrosoftModelLogoDark,
     baichuan: isLight ? BaichuanModelLogo : BaichuanModelLogoDark,
     claude: isLight ? ClaudeModelLogo : ClaudeModelLogoDark,
@@ -1326,34 +1331,70 @@ export const SYSTEM_MODELS: Record<string, Model[]> = {
   ],
   dmxapi: [
     {
-      id: 'gpt-3.5-turbo',
+      id: 'Qwen/Qwen2.5-7B-Instruct',
       provider: 'dmxapi',
-      name: 'GPT-3.5-Turbo',
-      group: 'OpenAI'
+      name: 'Qwen/Qwen2.5-7B-Instruct',
+      group: '免费模型'
+    },
+    {
+      id: 'ERNIE-Speed-128K',
+      provider: 'dmxapi',
+      name: 'ERNIE-Speed-128K',
+      group: '免费模型'
+    },
+    {
+      id: 'THUDM/glm-4-9b-chat',
+      provider: 'dmxapi',
+      name: 'THUDM/glm-4-9b-chat',
+      group: '免费模型'
+    },
+    {
+      id: 'glm-4-flash',
+      provider: 'dmxapi',
+      name: 'glm-4-flash',
+      group: '免费模型'
+    },
+    {
+      id: 'hunyuan-lite',
+      provider: 'dmxapi',
+      name: 'hunyuan-lite',
+      group: '免费模型'
     },
     {
       id: 'gpt-4o',
       provider: 'dmxapi',
-      name: 'GPT-4o',
+      name: 'gpt-4o',
       group: 'OpenAI'
     },
     {
       id: 'gpt-4o-mini',
       provider: 'dmxapi',
-      name: 'GPT-4o-Mini',
+      name: 'gpt-4o-mini',
       group: 'OpenAI'
     },
     {
-      id: 'deepseek-reasoner',
+      id: 'DMXAPI-DeepSeek-R1',
       provider: 'dmxapi',
-      name: 'DeepSeek Reasoner',
+      name: 'DMXAPI-DeepSeek-R1',
       group: 'DeepSeek'
     },
     {
-      id: 'deepseek-chat',
+      id: 'DMXAPI-DeepSeek-V3',
       provider: 'dmxapi',
-      name: 'DeepSeek Chat',
+      name: 'DMXAPI-DeepSeek-V3',
       group: 'DeepSeek'
+    },
+    {
+      id: 'claude-3-5-sonnet-20241022',
+      provider: 'dmxapi',
+      name: 'claude-3-5-sonnet-20241022',
+      group: 'Claude'
+    },
+    {
+      id: 'gemini-2.0-flash',
+      provider: 'dmxapi',
+      name: 'gemini-2.0-flash',
+      group: 'Gemini'
     }
   ],
   perplexity: [
@@ -1563,6 +1604,10 @@ export function isEmbeddingModel(model: Model): boolean {
     return false
   }
 
+  if (model.provider === 'doubao') {
+    return EMBEDDING_REGEX.test(model.name)
+  }
+
   return EMBEDDING_REGEX.test(model.id) || model.type?.includes('embedding') || false
 }
 
@@ -1571,12 +1616,20 @@ export function isVisionModel(model: Model): boolean {
     return false
   }
 
+  if (model.provider === 'doubao') {
+    return VISION_REGEX.test(model.name) || model.type?.includes('vision') || false
+  }
+
   return VISION_REGEX.test(model.id) || model.type?.includes('vision') || false
 }
 
 export function isReasoningModel(model: Model): boolean {
   if (!model) {
     return false
+  }
+
+  if (model.provider === 'doubao') {
+    return REASONING_REGEX.test(model.name) || model.type?.includes('reasoning') || false
   }
 
   return REASONING_REGEX.test(model.id) || model.type?.includes('reasoning') || false
@@ -1631,6 +1684,16 @@ export function isWebSearchModel(model: Model): boolean {
     return model?.id?.startsWith('glm-4-')
   }
 
+  if (provider.id === 'dashscope') {
+    const models = ['qwen-turbo', 'qwen-max', 'qwen-plus']
+    // matches id like qwen-max-0919, qwen-max-latest
+    return models.some((i) => model.id.startsWith(i))
+  }
+
+  if (provider.id === 'openrouter') {
+    return true
+  }
+
   return false
 }
 
@@ -1641,6 +1704,21 @@ export function getOpenAIWebSearchParams(assistant: Assistant, model: Model): Re
 
       if (model.provider === 'hunyuan') {
         return { enable_enhancement: true }
+      }
+
+      if (model.provider === 'dashscope') {
+        return {
+          enable_search: true,
+          search_options: {
+            forced_search: true
+          }
+        }
+      }
+
+      if (model.provider === 'openrouter') {
+        return {
+          plugins: [{ id: 'web' }]
+        }
       }
 
       return {

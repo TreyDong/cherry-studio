@@ -166,7 +166,8 @@ const Messages: FC<Props> = ({ assistant, topic, setActiveTopic }) => {
         setMessages([])
         setDisplayMessages([])
         const defaultTopic = getDefaultTopic(assistant.id)
-        updateTopic({ ...topic, name: defaultTopic.name, messages: [] })
+        const _topic = getTopic(assistant, topic.id)
+        _topic && updateTopic({ ..._topic, name: defaultTopic.name, messages: [] })
         TopicManager.clearTopicMessages(topic.id)
       }),
       EventEmitter.on(EVENT_NAMES.EXPORT_TOPIC_IMAGE, async () => {
@@ -315,7 +316,7 @@ const Messages: FC<Props> = ({ assistant, topic, setActiveTopic }) => {
             ))}
           </ScrollContainer>
         </InfiniteScroll>
-        <Prompt assistant={assistant} key={assistant.prompt} />
+        <Prompt assistant={assistant} key={assistant.prompt} topic={topic} />
       </NarrowLayout>
     </Container>
   )
@@ -349,8 +350,7 @@ interface ContainerProps {
 const Container = styled(Scrollbar)<ContainerProps>`
   display: flex;
   flex-direction: column-reverse;
-  padding: 10px 0;
-  padding-bottom: 20px;
+  padding: 10px 0 20px;
   overflow-x: hidden;
   background-color: var(--color-background);
 `

@@ -10,6 +10,7 @@ import {
   SearchOutlined,
   SettingOutlined
 } from '@ant-design/icons'
+import Ellipsis from '@renderer/components/Ellipsis'
 import PromptPopup from '@renderer/components/Popups/PromptPopup'
 import TextEditPopup from '@renderer/components/Popups/TextEditPopup'
 import Scrollbar from '@renderer/components/Scrollbar'
@@ -17,8 +18,8 @@ import { useKnowledge } from '@renderer/hooks/useKnowledge'
 import FileManager from '@renderer/services/FileManager'
 import { getProviderName } from '@renderer/services/ProviderService'
 import { FileType, FileTypes, KnowledgeBase } from '@renderer/types'
-import { documentExts, textExts } from '@shared/config/constant'
-import { Alert, Button, Card, Divider, message, Tag, Typography, Upload } from 'antd'
+import { bookExts, documentExts, textExts, thirdPartyApplicationExts } from '@shared/config/constant'
+import { Alert, Button, Card, Divider, message, Tag, Tooltip, Typography, Upload } from 'antd'
 import { FC } from 'react'
 import { useTranslation } from 'react-i18next'
 import styled from 'styled-components'
@@ -34,7 +35,7 @@ interface KnowledgeContentProps {
   selectedBase: KnowledgeBase
 }
 
-const fileTypes = [...documentExts, ...textExts]
+const fileTypes = [...bookExts, ...thirdPartyApplicationExts, ...documentExts, ...textExts]
 const KnowledgeContent: FC<KnowledgeContentProps> = ({ selectedBase }) => {
   const { t } = useTranslation()
 
@@ -52,6 +53,7 @@ const KnowledgeContent: FC<KnowledgeContentProps> = ({ selectedBase }) => {
     addSitemap,
     removeItem,
     getProcessingStatus,
+    getDirectoryProcessingPercent,
     addNote,
     addDirectory
   } = useKnowledge(selectedBase.id || '')
@@ -62,6 +64,8 @@ const KnowledgeContent: FC<KnowledgeContentProps> = ({ selectedBase }) => {
   if (!base) {
     return null
   }
+
+  const progressingPercent = getDirectoryProcessingPercent(base?.id)
 
   const handleAddFile = () => {
     if (disabled) {
@@ -216,7 +220,7 @@ const KnowledgeContent: FC<KnowledgeContentProps> = ({ selectedBase }) => {
           style={{ marginTop: 10, background: 'transparent' }}>
           <p className="ant-upload-text">{t('knowledge.drag_file')}</p>
           <p className="ant-upload-hint">
-            {t('knowledge.file_hint', { file_types: fileTypes.slice(0, 5).join(', ').replaceAll('.', '') })}
+            {t('knowledge.file_hint', { file_types: 'TXT, MD, HTML, PDF, DOCX, PPTX, XLSX, EPUB...' })}
           </p>
         </Dragger>
       </FileSection>
@@ -229,12 +233,16 @@ const KnowledgeContent: FC<KnowledgeContentProps> = ({ selectedBase }) => {
               <ItemContent>
                 <ItemInfo>
                   <FileIcon />
-                  <ClickableSpan onClick={() => window.api.file.openPath(file.path)}>{file.origin_name}</ClickableSpan>
+                  <ClickableSpan onClick={() => window.api.file.openPath(file.path)}>
+                    <Tooltip title={file.origin_name}>
+                      <Ellipsis text={file.origin_name} />
+                    </Tooltip>
+                  </ClickableSpan>
                 </ItemInfo>
                 <FlexAlignCenter>
                   {item.uniqueId && <Button type="text" icon={<RefreshIcon />} onClick={() => refreshItem(item)} />}
                   <StatusIconWrapper>
-                    <StatusIcon sourceId={item.id} base={base} getProcessingStatus={getProcessingStatus} />
+                    <StatusIcon sourceId={item.id} base={base} getProcessingStatus={getProcessingStatus} type="file" />
                   </StatusIconWrapper>
                   <Button type="text" danger onClick={() => removeItem(item)} icon={<DeleteOutlined />} />
                 </FlexAlignCenter>
@@ -258,13 +266,21 @@ const KnowledgeContent: FC<KnowledgeContentProps> = ({ selectedBase }) => {
                 <ItemInfo>
                   <FolderOutlined />
                   <ClickableSpan onClick={() => window.api.file.openPath(item.content as string)}>
-                    {item.content as string}
+                    <Tooltip title={item.content as string}>
+                      <Ellipsis text={item.content as string} />
+                    </Tooltip>
                   </ClickableSpan>
                 </ItemInfo>
                 <FlexAlignCenter>
                   {item.uniqueId && <Button type="text" icon={<RefreshIcon />} onClick={() => refreshItem(item)} />}
                   <StatusIconWrapper>
-                    <StatusIcon sourceId={item.id} base={base} getProcessingStatus={getProcessingStatus} />
+                    <StatusIcon
+                      sourceId={item.id}
+                      base={base}
+                      getProcessingStatus={getProcessingStatus}
+                      progressingPercent={progressingPercent}
+                      type="directory"
+                    />
                   </StatusIconWrapper>
                   <Button type="text" danger onClick={() => removeItem(item)} icon={<DeleteOutlined />} />
                 </FlexAlignCenter>
@@ -288,13 +304,15 @@ const KnowledgeContent: FC<KnowledgeContentProps> = ({ selectedBase }) => {
                 <ItemInfo>
                   <LinkOutlined />
                   <a href={item.content as string} target="_blank" rel="noopener noreferrer">
-                    {item.content as string}
+                    <Tooltip title={item.content as string}>
+                      <Ellipsis text={item.content as string} />
+                    </Tooltip>
                   </a>
                 </ItemInfo>
                 <FlexAlignCenter>
                   {item.uniqueId && <Button type="text" icon={<RefreshIcon />} onClick={() => refreshItem(item)} />}
                   <StatusIconWrapper>
-                    <StatusIcon sourceId={item.id} base={base} getProcessingStatus={getProcessingStatus} />
+                    <StatusIcon sourceId={item.id} base={base} getProcessingStatus={getProcessingStatus} type="url" />
                   </StatusIconWrapper>
                   <Button type="text" danger onClick={() => removeItem(item)} icon={<DeleteOutlined />} />
                 </FlexAlignCenter>
@@ -318,13 +336,20 @@ const KnowledgeContent: FC<KnowledgeContentProps> = ({ selectedBase }) => {
                 <ItemInfo>
                   <GlobalOutlined />
                   <a href={item.content as string} target="_blank" rel="noopener noreferrer">
-                    {item.content as string}
+                    <Tooltip title={item.content as string}>
+                      <Ellipsis text={item.content as string} />
+                    </Tooltip>
                   </a>
                 </ItemInfo>
                 <FlexAlignCenter>
                   {item.uniqueId && <Button type="text" icon={<RefreshIcon />} onClick={() => refreshItem(item)} />}
                   <StatusIconWrapper>
-                    <StatusIcon sourceId={item.id} base={base} getProcessingStatus={getProcessingStatus} />
+                    <StatusIcon
+                      sourceId={item.id}
+                      base={base}
+                      getProcessingStatus={getProcessingStatus}
+                      type="sitemap"
+                    />
                   </StatusIconWrapper>
                   <Button type="text" danger onClick={() => removeItem(item)} icon={<DeleteOutlined />} />
                 </FlexAlignCenter>
@@ -351,7 +376,7 @@ const KnowledgeContent: FC<KnowledgeContentProps> = ({ selectedBase }) => {
                 <FlexAlignCenter>
                   <Button type="text" onClick={() => handleEditNote(note)} icon={<EditOutlined />} />
                   <StatusIconWrapper>
-                    <StatusIcon sourceId={note.id} base={base} getProcessingStatus={getProcessingStatus} />
+                    <StatusIcon sourceId={note.id} base={base} getProcessingStatus={getProcessingStatus} type="note" />
                   </StatusIconWrapper>
                   <Button type="text" danger onClick={() => removeItem(note)} icon={<DeleteOutlined />} />
                 </FlexAlignCenter>

@@ -1027,6 +1027,75 @@ const migrateConfig = {
     }
 
     return state
+  },
+  '68': (state: RootState) => {
+    if (state.minapps) {
+      const notebooklm = DEFAULT_MIN_APPS.find((app) => app.id === 'notebooklm')
+      if (notebooklm) {
+        state.minapps.enabled.push(notebooklm)
+      }
+    }
+
+    if (!state.llm.providers.find((provider) => provider.id === 'modelscope')) {
+      state.llm.providers.push({
+        id: 'modelscope',
+        name: 'ModelScope',
+        type: 'openai',
+        apiKey: '',
+        apiHost: 'https://api-inference.modelscope.cn/v1/',
+        models: SYSTEM_MODELS.modelscope,
+        isSystem: true,
+        enabled: false
+      })
+    }
+
+    if (!state.llm.providers.find((provider) => provider.id === 'lmstudio')) {
+      state.llm.providers.push({
+        id: 'lmstudio',
+        name: 'LM Studio',
+        type: 'openai',
+        apiKey: '',
+        apiHost: 'http://localhost:1234',
+        models: SYSTEM_MODELS.lmstudio,
+        isSystem: true,
+        enabled: false
+      })
+    }
+
+    return state
+  },
+  '69': (state: RootState) => {
+    if (state.minapps) {
+      const coze = DEFAULT_MIN_APPS.find((app) => app.id === 'coze')
+      if (coze) {
+        state.minapps.enabled.push(coze)
+      }
+    }
+    state.settings.gridColumns = 2
+    state.settings.gridPopoverTrigger = 'hover'
+    return state
+  },
+  '70': (state: RootState) => {
+    state.llm.providers.forEach((provider) => {
+      if (provider.id === 'dmxapi') {
+        provider.apiHost = 'https://www.dmxapi.cn'
+      }
+    })
+    return state
+  },
+  '71': (state: RootState) => {
+    const appIds = ['dify', 'wpslingxi', 'lechat', 'abacus', 'lambdachat']
+
+    if (state.minapps) {
+      appIds.forEach((id) => {
+        const app = DEFAULT_MIN_APPS.find((app) => app.id === id)
+        if (app) {
+          state.minapps.enabled.push(app)
+        }
+      })
+    }
+
+    return state
   }
 }
 
