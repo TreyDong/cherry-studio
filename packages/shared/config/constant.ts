@@ -90,7 +90,16 @@ export const textExts = [
   '.groovy', // Gradle 构建文件
   '.kts', // Kotlin Script 文件
   '.java', // Java 代码文件
-  '.cs' // C# 代码文件
+  '.cs', // C# 代码文件
+  '.cpp', // C++ 代码文件
+  '.c', // C++ 代码文件
+  '.h', // C++ 头文件
+  '.hpp', // C++ 头文件
+  '.cc', // C++ 源文件
+  '.cxx', // C++ 源文件
+  '.cppm', // C++20 模块接口文件
+  '.ipp', // 模板实现文件
+  '.ixx' // C++20 模块实现文件
 ]
 
 export const ZOOM_SHORTCUTS = [

@@ -1084,7 +1084,7 @@ const migrateConfig = {
     return state
   },
   '71': (state: RootState) => {
-    const appIds = ['dify', 'wpslingxi', 'lechat', 'abacus', 'lambdachat']
+    const appIds = ['dify', 'wpslingxi', 'lechat', 'abacus', 'lambdachat', 'baidu-ai-search']
 
     if (state.minapps) {
       appIds.forEach((id) => {
@@ -1093,8 +1093,50 @@ const migrateConfig = {
           state.minapps.enabled.push(app)
         }
       })
+      // remove zhihu-zhiada
+      state.minapps.enabled = state.minapps.enabled.filter((app) => app.id !== 'zhihu-zhiada')
+      state.minapps.disabled = state.minapps.disabled.filter((app) => app.id !== 'zhihu-zhiada')
     }
 
+    state.settings.thoughtAutoCollapse = true
+
+    return state
+  },
+  '72': (state: RootState) => {
+    if (state.minapps) {
+      const monica = DEFAULT_MIN_APPS.find((app) => app.id === 'monica')
+      if (monica) {
+        state.minapps.enabled.push(monica)
+      }
+    }
+
+    // remove duplicate lmstudio providers
+    const emptyLmStudioProviderIndex = state.llm.providers.findLastIndex(
+      (provider) => provider.id === 'lmstudio' && provider.models.length === 0
+    )
+
+    if (emptyLmStudioProviderIndex !== -1) {
+      state.llm.providers.splice(emptyLmStudioProviderIndex, 1)
+    }
+
+    return state
+  },
+  '73': (state: RootState) => {
+    if (state.websearch) {
+      state.websearch.searchWithTime = true
+    }
+    if (!state.llm.providers.find((provider) => provider.id === 'lmstudio')) {
+      state.llm.providers.push({
+        id: 'lmstudio',
+        name: 'LM Studio',
+        type: 'openai',
+        apiKey: '',
+        apiHost: 'http://localhost:1234',
+        models: SYSTEM_MODELS.lmstudio,
+        isSystem: true,
+        enabled: false
+      })
+    }
     return state
   }
 }
