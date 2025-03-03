@@ -343,7 +343,20 @@
       },
       "sync_notion": "Синхронизация с Notion",
       "notion_config_missing": "Отсутствует конфигурация Notion",
-      "notion_sync_failed": "Не удалось синхронизировать с Notion"
+      "notion_sync_failed": "Не удалось синхронизировать с Notion",
+      "external_imports": "Внешние импорты",
+      "external_import_type": "Тип импорта",
+      "external_import_none": "Нет",
+      "external_import_success": "Внешний импорт успешно выполнен",
+      "external_import_failed": "Внешний импорт не удался",
+      "no_enabled_external_sources": "Нет включенных внешних источников",
+      "notion_integration": "Интеграция с Notion",
+      "notion_api_key": "API ключ Notion",
+      "notion_api_key_description": "API ключ для доступа к вашему рабочему пространству Notion",
+      "notion_database_id": "ID базы данных Notion",
+      "obsidian_integration": "Интеграция с Obsidian",
+      "general_settings": "Общие настройки",
+      "sync_now": "Синхронизировать сейчас"
     },
     "languages": {
       "arabic": "Арабский",

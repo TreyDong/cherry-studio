@@ -86,7 +86,12 @@ class KnowledgeService {
     _: Electron.IpcMainInvokeEvent,
     { base, item, forceReload = false }: { base: KnowledgeBaseParams; item: KnowledgeItem; forceReload: boolean }
   ): Promise<LoaderReturn> => {
-    setGlobalDispatcher(new ProxyAgent(proxyManager.getProxyUrl() || ''))
+    // Only set the global dispatcher if a proxy URL is available
+    const proxyUrl = proxyManager.getProxyUrl()
+    if (proxyUrl) {
+      setGlobalDispatcher(new ProxyAgent(proxyUrl))
+    }
+
     const ragApplication = await this.getRagApplication(base)
 
     const sendDirectoryProcessingPercent = (totalFiles: number, processedFiles: number) => {
@@ -170,7 +175,7 @@ class KnowledgeService {
       } as LoaderReturn
     }
 
-    if (item.type === 'file') {
+    if (item.type === 'file' || item.type === 'external') {
       const file = item.content as FileType
 
       return await addFileLoader(ragApplication, file, base, forceReload)

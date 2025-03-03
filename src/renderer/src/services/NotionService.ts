@@ -1,8 +1,6 @@
 import { Client } from '@notionhq/client'
 import { FileType, FileTypes, KnowledgeItem } from '@renderer/types'
 
-import FileManager from './FileManager'
-
 export class NotionService {
   private client: Client
   private PAGE_SIZE = 10
@@ -16,12 +14,12 @@ export class NotionService {
   async getDatabaseContent(databaseId: string, fileItems: KnowledgeItem[]): Promise<FileType[]> {
     try {
       console.log('[NotionService] fileItems:', fileItems)
-      // 创建一个 Set 来跟踪已处理的文件名
+      // Create a Set to track processed file names
       const processedFiles = new Set<string>()
       const fileMap = new Map(
         fileItems.map((item) => {
           const fileType = item.content as FileType
-          processedFiles.add(fileType.origin_name) // 记录已存在的文件
+          processedFiles.add(fileType.origin_name) // Record existing files
           return [fileType.origin_name, item]
         })
       )
@@ -41,7 +39,7 @@ export class NotionService {
             const pageTitle = this.extractPageTitle(page)
             const fileName = sanitizeFileName(`${pageTitle || 'Untitled'}`)
 
-            // 检查是否已处理过这个文件
+            // Check if this file has already been processed
             if (processedFiles.has(fileName)) {
               console.log(`[NotionService] Skip existing file: ${fileName}`)
               continue
@@ -54,33 +52,33 @@ export class NotionService {
             }
             // Get page content from Notion
             const pageContent = await this.getPageContent(page.id)
-            // 检查页面内容是否为空
+            // Check if the page content is empty
             if (!pageContent.trim()) {
               console.log(`[NotionService] Skip empty page: ${fileName}`)
               continue
             }
             console.log('fileName:', fileName)
+            try {
+              // 使用专门的外部导入方法
+              const filePath = await window.api.file.importFromExternalSource(pageContent, fileName, 'notion', '.md')
 
-            // 直接创建 FileType 对象，包含 content
-            const fileObj: FileType = {
-              id: fileName,
-              name: fileName,
-              path: '',
-              origin_name: `${fileName}.md` || 'Untitled.md',
-              size: pageContent.length,
-              ext: '.md',
-              type: FileTypes.DOCUMENT,
-              created_at: new Date(),
-              count: 1
+              // 创建文件对象
+              const uploadedFile: FileType = {
+                id: fileName,
+                name: fileName,
+                path: filePath as string,
+                origin_name: fileName,
+                size: pageContent.length,
+                ext: '.md',
+                type: FileTypes.EXTERNAL,
+                count: 1,
+                created_at: new Date(),
+                externalSource: 'notion'
+              }
+              allFiles.push(uploadedFile)
+            } catch (error) {
+              console.error('[NotionService] Failed to import Notion content:', error)
             }
-            const tempFilePath = await window.api.file.createOrgin(`${fileName}.md`)
-            await window.api.file.write(tempFilePath, pageContent)
-            const uploadedFile = await FileManager.uploadFile({
-              ...fileObj,
-              path: tempFilePath || ''
-            })
-            allFiles.push(uploadedFile)
-            console.log('allFiles:', allFiles)
           } catch (error) {
             console.error(`Failed to process Notion page ${page.id}:`, error)
           }
@@ -150,15 +148,15 @@ export class NotionService {
 export const sanitizeFileName = (fileName: string): string => {
   return (
     fileName
-      // 替换 Windows 和 Unix 系统中的非法字符
+      // Replace Windows and Unix system illegal characters
       .replace(/[<>:"/\\|?*]/g, '_')
-      // 替换以点（.）开头的文件名
+      // Replace files starting with a dot (.)
       .replace(/^\.+/, '_')
-      // 替换 macOS 中的冒号（:）为下划线
+      // Replace macOS colon (:) with underscore
       .replace(/:/g, '_')
-      // 移除末尾的点和空格
+      // Remove trailing dots and spaces
       .replace(/[. ]+$/, '')
-      // 确保文件名不为空
+      // Ensure file name is not empty
       .replace(/^$/, '_')
       .slice(0, 255)
   )

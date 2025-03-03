@@ -343,7 +343,20 @@
       },
       "sync_notion": "从 Notion 同步",
       "notion_config_missing": "Notion 配置缺失",
-      "notion_sync_failed": "从 Notion 同步失败"
+      "notion_sync_failed": "从 Notion 同步失败",
+      "external_imports": "外部导入",
+      "external_import_type": "导入类型",
+      "external_import_none": "无",
+      "external_import_success": "外部导入成功",
+      "external_import_failed": "外部导入失败",
+      "no_enabled_external_sources": "没有启用的外部源",
+      "notion_integration": "Notion 集成",
+      "notion_api_key": "Notion API 密钥",
+      "notion_api_key_description": "用于访问您的 Notion 工作区的 API 密钥",
+      "notion_database_id": "Notion 数据库 ID",
+      "obsidian_integration": "Obsidian 集成",
+      "general_settings": "常规设置",
+      "sync_now": "立即同步"
     },
     "languages": {
       "arabic": "阿拉伯文",

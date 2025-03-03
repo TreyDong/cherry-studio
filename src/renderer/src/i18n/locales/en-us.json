@@ -346,7 +346,20 @@
       },
       "sync_notion": "Sync from Notion",
       "notion_config_missing": "Notion configuration is missing",
-      "notion_sync_failed": "Failed to sync from Notion"
+      "notion_sync_failed": "Failed to sync from Notion",
+      "external_imports": "External Imports",
+      "external_import_type": "Import Type",
+      "external_import_none": "None",
+      "external_import_success": "External import successful",
+      "external_import_failed": "External import failed",
+      "no_enabled_external_sources": "No enabled external sources",
+      "notion_integration": "Notion Integration",
+      "notion_api_key": "Notion API Key",
+      "notion_api_key_description": "API key used to access your Notion workspace",
+      "notion_database_id": "Notion Database ID",
+      "obsidian_integration": "Obsidian Integration",
+      "general_settings": "General Settings",
+      "sync_now": "Sync Now"
     },
     "languages": {
       "arabic": "Arabic",

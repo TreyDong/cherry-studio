@@ -135,6 +135,9 @@ export function registerIpc(mainWindow: BrowserWindow, app: Electron.App) {
   ipcMain.handle('file:download', fileManager.downloadFile)
   ipcMain.handle('file:copy', fileManager.copyFile)
   ipcMain.handle('file:binaryFile', fileManager.binaryFile)
+  ipcMain.handle('file:importFromExternalSource', (event, params) =>
+    fileManager.importFromExternalSource(event, params)
+  )
 
   // fs
   ipcMain.handle('fs:read', FileService.readFile)

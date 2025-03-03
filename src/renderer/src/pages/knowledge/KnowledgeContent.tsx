@@ -18,11 +18,10 @@ import TextEditPopup from '@renderer/components/Popups/TextEditPopup'
 import Scrollbar from '@renderer/components/Scrollbar'
 import { useKnowledge } from '@renderer/hooks/useKnowledge'
 import FileManager from '@renderer/services/FileManager'
-import { NotionService } from '@renderer/services/NotionService'
 import { getProviderName } from '@renderer/services/ProviderService'
 import { FileType, FileTypes, KnowledgeBase, KnowledgeItem } from '@renderer/types'
 import { bookExts, documentExts, textExts, thirdPartyApplicationExts } from '@shared/config/constant'
-import { Alert, Button, Card, Divider, Dropdown, message, Tag, Tooltip, Typography, Upload } from 'antd'
+import { Alert, Button, Card, Divider, Dropdown, List, message, Tag, Tooltip, Typography, Upload } from 'antd'
 import { FC, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import styled from 'styled-components'
@@ -47,6 +46,7 @@ const KnowledgeContent: FC<KnowledgeContentProps> = ({ selectedBase }) => {
     base,
     noteItems,
     fileItems,
+    externalItems,
     urlItems,
     sitemapItems,
     directoryItems,
@@ -60,7 +60,8 @@ const KnowledgeContent: FC<KnowledgeContentProps> = ({ selectedBase }) => {
     getDirectoryProcessingPercent,
     addNote,
     addDirectory,
-    updateItem
+    updateItem,
+    importFromExternalSource
   } = useKnowledge(selectedBase.id || '')
 
   const providerName = getProviderName(base?.model.provider || '')
@@ -229,24 +230,28 @@ const KnowledgeContent: FC<KnowledgeContentProps> = ({ selectedBase }) => {
     }
   }
 
-  const handleSyncFromNotion = async () => {
+  const handleSyncFromExternalSources = async () => {
     if (disabled) {
       return
     }
 
     setSyncLoading(true)
     try {
-      if (!base.notionConfig?.apiKey || !base.notionConfig?.databaseId) {
-        message.error(t('knowledge.notion_config_missing'))
-        return
+      // Try to import from the configured external source
+      if (base.externalImports) {
+        const result = await importFromExternalSource(base.externalImports.type)
+
+        if (result) {
+          message.success(t('knowledge.external_import_success'))
+        } else {
+          message.error(t('knowledge.external_import_failed'))
+        }
+      } else {
+        message.info(t('knowledge.no_enabled_external_sources'))
       }
-      const notionService = new NotionService(base.notionConfig.apiKey)
-      const notionFiles = await notionService.getDatabaseContent(base.notionConfig.databaseId, fileItems)
-      console.log('[KnowledgeContent] notionFiles:', notionFiles)
-      addFiles(notionFiles)
     } catch (error) {
-      console.error('Failed to sync from Notion:', error)
-      message.error(t('knowledge.notion_sync_failed'))
+      console.error('Failed to sync from external sources:', error)
+      message.error(t('knowledge.external_import_failed'))
     } finally {
       setSyncLoading(false)
     }
@@ -266,13 +271,6 @@ const KnowledgeContent: FC<KnowledgeContentProps> = ({ selectedBase }) => {
           <ButtonGroup>
             <Button icon={<PlusOutlined />} onClick={handleAddFile} disabled={disabled}>
               {t('knowledge.add_file')}
-            </Button>
-            <Button
-              icon={<SyncOutlined />}
-              onClick={handleSyncFromNotion}
-              disabled={disabled || syncLoading}
-              loading={syncLoading}>
-              {t('knowledge.sync_from_notion')}
             </Button>
           </ButtonGroup>
         </TitleWrapper>
@@ -471,6 +469,57 @@ const KnowledgeContent: FC<KnowledgeContentProps> = ({ selectedBase }) => {
           ))}
         </FlexColumn>
       </ContentSection>
+
+      <ContentSection>
+        <TitleWrapper>
+          <Title level={5}>{t('knowledge.external_imports')}</Title>
+          <Button
+            icon={<SyncOutlined />}
+            onClick={handleSyncFromExternalSources}
+            disabled={disabled || syncLoading || !base.externalImports}
+            loading={syncLoading}>
+            {t('knowledge.sync_now')}
+          </Button>
+        </TitleWrapper>
+      </ContentSection>
+
+      {externalItems.length > 0 && (
+        <>
+          <List
+            dataSource={externalItems}
+            renderItem={(item) => {
+              const file = item.content as FileType
+              return (
+                <ItemCard key={item.id}>
+                  <ItemContent>
+                    <ItemInfo>
+                      <FileIcon />
+                      <ClickableSpan onClick={() => window.api.file.openPath(file.path)}>
+                        <Tooltip title={file.origin_name}>
+                          <Ellipsis text={file.name}></Ellipsis>
+                        </Tooltip>
+                      </ClickableSpan>
+                    </ItemInfo>
+
+                    <FlexAlignCenter>
+                      {item.uniqueId && <Button type="text" icon={<RefreshIcon />} onClick={() => refreshItem(item)} />}
+                      <StatusIconWrapper>
+                        <StatusIcon
+                          sourceId={item.id}
+                          base={base}
+                          getProcessingStatus={getProcessingStatus}
+                          type="external"
+                        />
+                      </StatusIconWrapper>
+                      <Button type="text" danger onClick={() => removeItem(item)} icon={<DeleteOutlined />} />
+                    </FlexAlignCenter>
+                  </ItemContent>
+                </ItemCard>
+              )
+            }}
+          />
+        </>
+      )}
 
       <Divider style={{ margin: '10px 0' }} />
 

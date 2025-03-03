@@ -343,7 +343,20 @@
       },
       "sync_notion": "Notion から同期",
       "notion_config_missing": "Notion の設定が不足しています",
-      "notion_sync_failed": "Notion からの同期に失敗しました"
+      "notion_sync_failed": "Notion からの同期に失敗しました",
+      "external_imports": "外部インポート",
+      "external_import_type": "インポートタイプ",
+      "external_import_none": "なし",
+      "external_import_success": "外部インポートに成功しました",
+      "external_import_failed": "外部インポートに失敗しました",
+      "no_enabled_external_sources": "有効な外部ソースがありません",
+      "notion_integration": "Notion 連携",
+      "notion_api_key": "Notion API キー",
+      "notion_api_key_description": "Notion ワークスペースにアクセスするための API キー",
+      "notion_database_id": "Notion データベース ID",
+      "obsidian_integration": "Obsidian 連携",
+      "general_settings": "一般設定",
+      "sync_now": "今すぐ同期"
     },
     "languages": {
       "arabic": "アラビア語",

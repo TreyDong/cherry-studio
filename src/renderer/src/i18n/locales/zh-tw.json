@@ -343,7 +343,20 @@
       },
       "sync_notion": "從 Notion 同步",
       "notion_config_missing": "Notion 設定缺失",
-      "notion_sync_failed": "從 Notion 同步失敗"
+      "notion_sync_failed": "從 Notion 同步失敗",
+      "external_imports": "外部導入",
+      "external_import_type": "導入類型",
+      "external_import_none": "無",
+      "external_import_success": "外部導入成功",
+      "external_import_failed": "外部導入失敗",
+      "no_enabled_external_sources": "沒有啟用的外部來源",
+      "notion_integration": "Notion 整合",
+      "notion_api_key": "Notion API 密鑰",
+      "notion_api_key_description": "用於訪問您的 Notion 工作區的 API 密鑰",
+      "notion_database_id": "Notion 資料庫 ID",
+      "obsidian_integration": "Obsidian 整合",
+      "general_settings": "一般設置",
+      "sync_now": "立即同步"
     },
     "languages": {
       "arabic": "阿拉伯文",
