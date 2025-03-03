@@ -504,7 +504,7 @@ const KnowledgeContent: FC<KnowledgeContentProps> = ({ selectedBase }) => {
                       <FileIcon />
                       <ClickableSpan onClick={() => window.api.file.openPath(file.path)}>
                         <Tooltip title={file.origin_name}>
-                          <Ellipsis text={file.name}></Ellipsis>
+                          <Ellipsis maxLine={1}>{file.origin_name}</Ellipsis>
                         </Tooltip>
                       </ClickableSpan>
                     </ItemInfo>
